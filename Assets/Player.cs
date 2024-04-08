@@ -101,6 +101,67 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        GetComponent<Renderer>().material.color = stateColors[(int)m_nState];
+        switch (m_nState)
+        {
+            case eState.kMoveSlow:
+                UpdateDirectionAndSpeed();
+                //CheckForDive();
+                //m_fAngle = ;
+                transform.rotation = Quaternion.Euler(0, 0, m_fTargetAngle - 90);
+
+                //m_fSpeed += m_fIncSpeed;
+                m_fSpeed = Mathf.MoveTowards(m_fSpeed, m_fTargetSpeed, m_fIncSpeed);
+                Vector3 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                transform.position += direction * m_fSpeed;
+                transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+
+                if (m_fSpeed > m_fSlowSpeed)
+                {
+                    m_nState = eState.kMoveFast;
+                }
+
+                break;
+
+            case eState.kMoveFast:
+                UpdateDirectionAndSpeed();
+
+                transform.rotation = Quaternion.Euler(0, 0, m_fTargetAngle - 90);
+
+                if (m_fSpeed >= m_fMaxSpeed)
+                {
+                    m_fSpeed = m_fMaxSpeed;
+                }
+                else
+                {
+                    m_fSpeed = Mathf.MoveTowards(m_fSpeed, m_fTargetSpeed, m_fIncSpeed);
+                }
+
+                direction = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                transform.position += direction * m_fSpeed;
+                transform.position = new Vector3(transform.position.x, transform.position.y, 0);
+
+                //if ()
+                //{
+                //m_nState = eState.kMoveSlow;
+                // }
+                break;
+
+            case eState.kDiving:
+                m_nState = eState.kRecovering;
+                break;
+
+            case eState.kRecovering:
+                m_fSpeed = 0;
+
+                StartCoroutine(Recover());
+
+                break;
+        }
+                GetComponent<Renderer>().material.color = stateColors[(int)m_nState];
+    }
+    IEnumerator Recover()
+    {
+        yield return new WaitForSeconds(m_fDiveRecoveryTime);
+        m_nState = eState.kMoveSlow;
     }
 }

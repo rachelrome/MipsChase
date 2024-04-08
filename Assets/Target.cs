@@ -43,6 +43,35 @@ public class Target : MonoBehaviour
 
     void FixedUpdate()
     {
+        switch (m_nState)
+        {
+            case eState.kIdle:
+                m_fHopStart = 0;
+
+                //if player is within range of scared distance, start hopping
+                if (Physics.CheckSphere(transform.position, m_fScaredDistance, m_player.gameObject.layer))
+                {
+                    m_nState = eState.kHopStart;
+                }
+
+                break;
+
+            case eState.kHopStart:
+                m_nState = eState.kHop;
+                break;
+
+            case eState.kHop:
+
+                //if (m_nMaxMoveAttempts)
+                // {
+                // m_nState = eState.kIdle;
+                //}
+                break;
+
+            case eState.kCaught:
+                break;
+        }
+
         GetComponent<Renderer>().material.color = stateColors[(int)m_nState];
     }
 
